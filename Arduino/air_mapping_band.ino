@@ -1,18 +1,48 @@
 #include "BluetoothSerial.h"
 #include <Wire.h>
 #include "Adafruit_SGP30.h"
+#include <MQUnifiedsensor.h>
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
-#define CON 30
-#define RDY 31
-#define PERIOD 30 //testing with period of 2 minutes
+#define CON 17
+#define ANODE 18
+#define RDY 19
+#define PERIOD 5 //testing with period of 2 minutes
+#define COPORT 39 // VN
+#define PROPORT 36 // VP
+/************************Hardware Related Macros************************************/
+#define         Board                   ("ESP 32")
+#define         Voltage_Resolution      (5)
+#define         ADC_Bit_Resolution      (12)
+
+/* MQ9 Definitions */
+/***********************Software Related Macros************************************/
+#define         COType                    ("MQ-9") //MQ9
+#define         RatioMQ9CleanAir        (9.6) //RS / R0 = 60 ppm 
+#define         PreaheatControlPin5     (3) // Preaheat pin to control with 5 volts
+#define         PreaheatControlPin14    (4)
+/*****************************Globals***********************************************/
+MQUnifiedsensor MQ9(Board, Voltage_Resolution, ADC_Bit_Resolution, COPORT, COType);
+
+/* MQ2 Definitions */
+/***********************Software Related Macros************************************/
+#define         PROType                ("MQ-2") //MQ2
+#define         RatioMQ2CleanAir        (9.83) //RS / R0 = 9.83 ppm 
+
+/*****************************Globals***********************************************/
+MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, PROPORT, PROType);
+
+
 String TEST = "[5000,200,1]";
 volatile int interruptCounter;
 int totalInterruptCounter;
 bool CO2sensor = 1;
 float CO2Value = 0;
+float COValue = 0;
+float PropaneValue = 0;
 int counter = 0;
+float data[] = {5000.0,200.0,1.0};
  
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
@@ -39,16 +69,18 @@ void resetSGP() {
 
 void setup() {
   /* setup LED */
-  pinMode(CON, OUTPUT); 
-  pinMode(RDY, OUTPUT); 
+  pinMode(ANODE, OUTPUT);
+  pinMode(CON, OUTPUT);  
+
   Serial.begin(115200);
+  float calcR0;
+  
   /* setup Bluetooth */
   if(!SerialBT.begin("AIR_MAP_BAND")){
     Serial.println("Error in initiallizing Bluetooth");
   }else{
     Serial.println("Bluetooth initialized");
   }
-  digitalWrite(RDY, HIGH); 
 
   /*setup peridic timer */
   timer = timerBegin(0, 80, true);
@@ -60,6 +92,49 @@ void setup() {
     Serial.println("CO2 Sensor not found :(");
     CO2sensor = 0;
   }
+
+  /*setup MQ9*/
+  //Set math model to calculate the PPM concentration and the value of constants
+  MQ9.setRegressionMethod(1); //_PPM =  a*ratio^b
+  MQ9.setA(599.65); MQ9.setB(-2.244); // Configure the equation to to calculate CO concentration
+  MQ9.init();
+  calcR0 = 0;
+  Serial.print("Calibrating CO-MQ9 please wait.");
+  for(int i = 1; i<=10; i ++)
+  {
+    MQ9.update(); // Update data, the arduino will read the voltage from the analog pin
+    calcR0 += MQ9.calibrate(RatioMQ9CleanAir);
+    Serial.print(".");
+  }
+  MQ9.setR0(calcR0/10);
+  Serial.println("  done!.");
+
+  if(isinf(calcR0)) {Serial.println("Warning: Conection issue, CO R0 is infinite (Open circuit detected) please check your wiring and supply"); while(1);}
+  if(calcR0 == 0){Serial.println("Warning: Conection issue found, CO R0 is zero (Analog pin shorts to ground) please check your wiring and supply"); while(1);}
+
+  /*setup MQ2*/
+  //Set math model to calculate the PPM concentration and the value of constants
+  MQ2.setRegressionMethod(1); //_PPM =  a*ratio^b
+  MQ2.setA(658.71); MQ2.setB(-2.168); // Configure the equation to to calculate Propane
+  MQ2.init();
+  Serial.print("Calibrating Propane-MQ2 please wait.");
+  calcR0 = 0;
+  for(int i = 1; i<=10; i ++)
+  {
+    MQ2.update(); // Update data, the arduino will read the voltage from the analog pin
+    calcR0 += MQ2.calibrate(RatioMQ2CleanAir);
+    Serial.print(".");
+  }
+  MQ2.setR0(calcR0/10);
+  Serial.println("  done!.");
+  
+  if(isinf(calcR0)) {Serial.println("Warning: Conection issue, PROPANE R0 is infinite (Open circuit detected) please check your wiring and supply");}
+  if(calcR0 == 0){Serial.println("Warning: Conection issue found, PROPANE R0 is zero (Analog pin shorts to ground) please check your wiring and supply");}
+
+  /* start LED */
+  digitalWrite(ANODE, HIGH);
+  digitalWrite(CON, LOW);
+  digitalWrite(RDY, HIGH);
 }
 
 void loop() {
@@ -67,18 +142,21 @@ void loop() {
       portENTER_CRITICAL(&timerMux);
       interruptCounter--;
       portEXIT_CRITICAL(&timerMux);
-        if(!SerialBT.println(TEST)) {
-           digitalWrite(CON, LOW);
-           digitalWrite(RDY, HIGH);
-             Serial.write("Disconnected");
-        } 
+      String toSend = "";
+      for(int i = 0; i < 3; i++) {
+        toSend.concat(data[i]);
+        toSend.concat("+");
+      }
+      
+      if(!SerialBT.println(toSend)) {
+         Serial.println("Disconnected");
+      } 
   }
   
   if (SerialBT.available())
   {
     Serial.write(SerialBT.read());
-    digitalWrite(CON, HIGH);
-    digitalWrite(RDY, LOW);  
+    digitalWrite(CON, HIGH); 
     timerAlarmEnable(timer);
   }
   
@@ -88,17 +166,25 @@ void loop() {
   }
 
   /* SGP30 */
-    if (CO2sensor && sgp.IAQmeasure()) {
-      CO2Value = sgp.eCO2;
-    }
-    else {
-      Serial.println("CO2 Measurement failed");
-    } 
-    counter++;
-    if (counter == 30) {
-      counter = 0;
-      resetSGP();
-    }
-    Serial.print("CO2 value: ");
-    Serial.println(CO2Value);
+  if (CO2sensor && sgp.IAQmeasure()) {
+    CO2Value = sgp.eCO2;
+    data[0] = CO2Value;
+  }
+  else {
+    Serial.println("CO2 Measurement failed");
+  } 
+  counter++;
+  if (counter == 30) {
+    counter = 0;
+    resetSGP();
+  }
+  /* MQ9 */
+  MQ9.update();
+  COValue = MQ9.readSensor();
+  data[1] = COValue;
+
+  /* MQ2 */
+  MQ2.update();
+  PropaneValue = MQ2.readSensor();
+  data[2] = PropaneValue;
 }
