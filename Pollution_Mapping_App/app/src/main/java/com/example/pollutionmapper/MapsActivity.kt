@@ -14,6 +14,7 @@ import android.content.Context
 import android.location.LocationListener
 import android.util.Log
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import android.widget.TextView
 
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.CircleOptions
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
 
     private lateinit var mMap: GoogleMap
     private var permissions = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -56,6 +57,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        BluetoothServerController(this).start()
+        val textView = findViewById<TextView>(R.id.text_view_id)
+        //final TextView helloTextView = (TextView) findViewById(R.id.text_view_id);
+        textView.text = Bluetooth_data.sensor_data.joinToString(",");
     }
 
     /**
@@ -140,7 +145,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.d("AndroidLocation", "locationByNetwork: " + locationByNetwork.toString())
             if (locationByGps != null || locationByNetwork != null) {
                 Log.d("AndroidLocation", "entered function")
-                if ( locationByNetwork == null || (locationByGps!!.accuracy > locationByNetwork!!.accuracy)) {
+                if (locationByGps != null) {
                     currentLocation = locationByGps
                     Log.d("AndroidLocation", "GPS Latitude : " + currentLocation!!.latitude)
                     Log.d("AndroidLocation", "GPS Longitude : " + currentLocation!!.longitude)
