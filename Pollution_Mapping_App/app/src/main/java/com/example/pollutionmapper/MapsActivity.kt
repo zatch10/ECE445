@@ -1,6 +1,9 @@
 package com.example.pollutionmapper
 
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Build
@@ -15,6 +18,7 @@ import android.location.LocationListener
 import android.util.Log
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -36,9 +40,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
     private var hasNetwork = false
     private var locationByGps : Location? = null
     private var locationByNetwork : Location? = null
-    private var currentLatitude : Double? = null
-    private var currentLongitude : Double? = null
+    var currentLatitude : Double? = null
+    var currentLongitude : Double? = null
+    var googleMapObject: GoogleMap? = null
+    var mapReady = false
+    lateinit var notificationChannel: NotificationChannel
+    lateinit var notificationManager: NotificationManager
+    lateinit var builder: Notification.Builder
+    private val channelId = "12345"
+    private val description = "Test Notification"
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -58,9 +71,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         BluetoothServerController(this).start()
+        UpdateMap(this).start()
         val textView = findViewById<TextView>(R.id.text_view_id)
         //final TextView helloTextView = (TextView) findViewById(R.id.text_view_id);
         textView.text = Bluetooth_data.sensor_data.joinToString(",");
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as
+                NotificationManager
+        notificationChannel = NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(notificationChannel)
     }
 
     /**
@@ -74,7 +92,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
+        googleMapObject = googleMap
         // Get current location and move the camera to that location to allow users to see
         // contamination zones around them. Mark the current location with a Blue marker.
         val currentLocation = LatLng(currentLatitude!!.toDouble(), currentLongitude!!.toDouble())
@@ -89,6 +107,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
         mMap.addMarker(MarkerOptions().position(testContaminationLocation).title("Contamination Zone")
             .snippet("CO2: xxx, CO: xxx, Propane: xxx"))
         mMap.addCircle(CircleOptions().center(testContaminationLocation).radius(100.0).clickable(true))
+        mapReady = true
+//        while(true){
+//            Thread.sleep(10000)
+//            Log.d("map", "clearing")
+//            mMap.clear()
+//        }
+//        Log.d("Main", "end of onMapReady")
     }
 
     private fun enableView(){
@@ -96,7 +121,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLocation() {
+    public fun getLocation() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
@@ -136,27 +161,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
             lastKnownLocationByGps?.let {
                 locationByGps = lastKnownLocationByGps
             }
-            Log.d("AndroidLocation", "locationByGps: " + locationByGps.toString())
+//            Log.d("AndroidLocation", "locationByGps: " + locationByGps.toString())
             val lastKnownLocationByNetwork =
                 locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             lastKnownLocationByNetwork?.let {
                 locationByNetwork = lastKnownLocationByNetwork
             }
-            Log.d("AndroidLocation", "locationByNetwork: " + locationByNetwork.toString())
+//            Log.d("AndroidLocation", "locationByNetwork: " + locationByNetwork.toString())
             if (locationByGps != null || locationByNetwork != null) {
                 Log.d("AndroidLocation", "entered function")
                 if (locationByGps != null) {
                     currentLocation = locationByGps
                     Log.d("AndroidLocation", "GPS Latitude : " + currentLocation!!.latitude)
                     Log.d("AndroidLocation", "GPS Longitude : " + currentLocation!!.longitude)
-                    currentLatitude = currentLocation!!.latitude
-                    currentLongitude = currentLocation!!.longitude
+                    this.currentLatitude = currentLocation!!.latitude
+                    this.currentLongitude = currentLocation!!.longitude
                 } else {
                     currentLocation = locationByNetwork
                     Log.d("AndroidLocation", "Network Latitude : " + currentLocation!!.latitude)
                     Log.d("AndroidLocation", "Network Longitude : " + currentLocation!!.longitude)
-                    currentLatitude = currentLocation!!.latitude
-                    currentLongitude = currentLocation!!.longitude
+                    this.currentLatitude = currentLocation!!.latitude
+                    this.currentLongitude = currentLocation!!.longitude
                 }
             }
         }
@@ -184,6 +209,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun notify_user(text: String){
+        var builder = Notification.Builder(this, channelId)
+            .setContentTitle("Contamination detected")
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_launcher_background)
+        notificationManager.notify(12345, builder.build())
+    }
 
 }
 

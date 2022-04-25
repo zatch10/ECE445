@@ -5,13 +5,20 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.os.Build
 import android.util.Log
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 
 val uuid: UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
+val co2_threshold = 500.0f //Actual threshold value has to be 10,000
+val co_threshold = 100.0f //Actual threshold value has to be 200
+var co2_detected = "not detected"
+var co_detected = "not detected"
+var propane_detected = "not detected"
 
 class BluetoothServerController(activity: MapsActivity) : Thread() {
     private var cancelled: Boolean
@@ -54,11 +61,12 @@ class BluetoothServerController(activity: MapsActivity) : Thread() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun run() {
 //        var socket: BluetoothSocket
         Log.d("bluetooth", "entered run")
         while(true) {
-            Log.d("bluetooth", "entered while loop")
+            //Log.d("bluetooth", "entered while loop")
             if (this.cancelled) {
                 Log.d("bluetooth", "CANCELLED")
                 break
@@ -69,7 +77,7 @@ class BluetoothServerController(activity: MapsActivity) : Thread() {
                 socket!!.connect()
                 Log.d("bluetooth", "socket try")
             } catch(e: IOException) {
-                Log.d("bluetooth", "AMODH")
+                //Log.d("bluetooth", "AMODH")
                 continue
             }
 
@@ -88,19 +96,43 @@ class BluetoothServerController(activity: MapsActivity) : Thread() {
                 }
 
                 while (true) {
-                    Log.d("bluetooth", "entered while 2 loop")
+//                    Log.d("bluetooth", "entered while 2 loop")
                     try{
                         if (socket!=null){
-                            Log.d("bluetooth", "socket available")
+//                            Log.d("bluetooth", "socket available")
                         } else{
                             Log.d("bluetooth", "socket not available")
                         }
                         len = socket!!.inputStream.read(buffer)
                         val data = buffer.copyOf(len)
                         val string = String(data)
-                        Bluetooth_data.sensor_data = string.split("+").take(3).map { it.toFloat() }.toList()
+                        try {
+                            Bluetooth_data.sensor_data =
+                                string.split("+").take(3).map { it.toFloat() }.toList()
 //                        Log.d("bluetooth", Bluetooth_data.sensor_data.joinToString(","))
-                        activity.findViewById<TextView>(R.id.text_view_id).text = Bluetooth_data.sensor_data.joinToString(",")
+                            activity.findViewById<TextView>(R.id.text_view_id).text =
+                                "CO2: ${Bluetooth_data.sensor_data[0].toString()}, CO: ${Bluetooth_data.sensor_data[1].toString()}, Propane: ${Bluetooth_data.sensor_data[2].toString()}"
+                            if (Bluetooth_data.sensor_data[0] > co2_threshold || Bluetooth_data.sensor_data[1] > co_threshold || Bluetooth_data.sensor_data[2] >= 1){
+                                if (Bluetooth_data.sensor_data[0] > co2_threshold){
+                                    co2_detected = "detected"
+                                }
+                                if (Bluetooth_data.sensor_data[1] > co_threshold){
+                                    co_detected = "detected"
+                                }
+                                if (Bluetooth_data.sensor_data[2] >= 1){
+                                    propane_detected = "detected"
+                                }
+                                activity.notify_user("CO2: $co2_detected, CO: $co_detected, Propane: $propane_detected" )
+                                UpdateMap(activity).post()
+                            }
+                            co2_detected = "not detected"
+                            co_detected = "not detected"
+                            propane_detected = "not detected"
+
+                        } catch (e: Error){
+                            Log.e("bluetooth", "error in converting to float values", e)
+                            continue
+                        }
                     } catch (e: Exception) {
                         Log.e("bluetooth", "error in extracting data", e)
                         continue
@@ -123,89 +155,7 @@ class BluetoothServerController(activity: MapsActivity) : Thread() {
     fun cancel() {
         this.cancelled = true
         this.serverSocket!!.close()
+        this.socket!!.close()
     }
 }
 
-
-
-
-
-
-//package com.example.pollutionmapper
-//
-//import android.bluetooth.BluetoothAdapter
-//import android.bluetooth.BluetoothDevice
-//import android.bluetooth.BluetoothServerSocket
-//import android.bluetooth.BluetoothSocket
-//import android.util.Log
-//import java.io.IOException
-//import java.util.*
-//
-//val uuid: UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
-//class BluetoothServerController(activity: MapsActivity) : Thread() {
-//    private var cancelled: Boolean
-//    private val serverSocket: BluetoothServerSocket?
-//    private val activity = activity
-//
-//    init {
-//        val btAdapter : BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-//        if (btAdapter != null) {
-//            var pairedDevices = btAdapter.bondedDevices
-//            var device : BluetoothDevice?
-//            for (bt in pairedDevices){
-//                if (bt.name == "AIR_MAP_BAND2") {
-//                    Log.d("bluetooth address", bt.address)
-//
-//                }
-//            }
-//            this.serverSocket = btAdapter.listenUsingRfcommWithServiceRecord("test", uuid) // 1
-//            this.cancelled = false
-//            Log.d("bluetooth", "got bt adapter")
-//            if (btAdapter.isEnabled){
-//                Log.d("bluetooth", "adapter enabled")
-//            } else{
-//                Log.d("bluetooth", "adapter disabled")
-//            }
-//
-//
-//
-//
-//        } else {
-//            this.serverSocket = null
-//            this.cancelled = true
-//            Log.d("bluetooth", "failed bt adapter")
-//        }
-//
-//    }
-//
-//    override fun run() {
-//        var socket: BluetoothSocket
-//        Log.d("bluetooth", "entered run")
-//        while(true) {
-//            Log.d("bluetooth", "entered while loop")
-//            if (this.cancelled) {
-//                Log.d("bluetooth", "CANCELLED")
-//                break
-//            }
-//
-//            try {
-//                socket = serverSocket!!.accept()  // 2
-//                Log.d("bluetooth", "socket try")
-//            } catch(e: IOException) {
-//                Log.d("bluetooth", "AMODH")
-//                break
-//            }
-//
-//            if (!this.cancelled && socket != null) {
-//                Log.d("server", "Connecting")
-//                BluetoothServer(this.activity, socket).start() // 3
-//            }
-//        }
-//        Log.d("bluetooth", "exited while loop")
-//    }
-//
-//    fun cancel() {
-//        this.cancelled = true
-//        this.serverSocket!!.close()
-//    }
-//}
