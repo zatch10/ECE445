@@ -26,12 +26,16 @@ Having finalized all our parts, I started working on our Circuit Schematic for t
 During this session, I first worked on researching and ordering our passive parts for our project. The passive parts include capacitors, inductors, and resistors. 
 These parts and their costs are listed in the table below:
 
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/passive%20parts.PNG" width="400"/>
+
 After ordering the parts we started brainstorming about the casing. The machine shop had already told us that they will not help with building a simple box. 
 Fortunately we could use a 3D printer to design a case. We ultimately had two options. The first was to use [UIUC's 3D printing Service](https://makerlab.illinois.edu/). The second option was to use the 3D printers at the openlab. 
 The second option would be free since my roommate had extra filament that he was willing to give me for the project. We ultimately decided to move forward with the second option
 
 ## 2022-03-24: Test first PCB
-Our first PCB order finally arrived and a picture of it is shown below. 
+Our first PCB order finally arrived and a picture of it is shown below:
+
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Initial%20PCB.jpg" width="400"/>
 
 We immediately found two issues with the PCB:
 1. Firstly, the inductors that we had ordered for the power subsystem circuit had a different footprint. 
@@ -68,18 +72,27 @@ send a message to phone.
 Having finalized our new power subsystem circuit schematic, I had to research and order the new regulators and passive components. These parts are summarized in the 
 table shown below:
 
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/LDO%20order.PNG" width="400"/>
+
 Additionally having finally recieved our sensors, it was time to test them on a bread board. The MQ9 and MQ2 required to be heated overnight to calibrate them. This
 heating process would burn any impurities on the heating coil which would release a really foul odour. Nevertheless, all the sensors were working perfectly. I used 
-the [MQunifiedSensor library] (https://www.arduino.cc/reference/en/libraries/mqunifiedsensor/) to verify the readings in parts per million (ppm).
-Additionally, I was able to read the SGP30 using the [Wire library] (https://www.arduino.cc/en/reference/wire) to read data over I2C.
+the [MQunifiedSensor library](https://www.arduino.cc/reference/en/libraries/mqunifiedsensor/) to verify the readings in parts per million (ppm).
+Additionally, I was able to read the SGP30 using the [Wire library](https://www.arduino.cc/en/reference/wire) to read data over I2C.
 
 ## 2021-02-05: Boot test the ESP32 chip on PCB
 After Vatsin had soldered the ESP32 using the reflow oven, I worked on trying to boot the 
 
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Open%20wire.PNG" width="400"/>
+
 ## 2021-02-05: Test sensors on PCB over Bluetooth
 
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Lab%20testing%20the%20board%20and%20sensors.jpg" width="400"/>
+
 ## 2021-02-05: Design Casing and start 3D print
+
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/top.PNG" width="200" hspace="20"/>      <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/bottom.PNG" width="200"  hspace="20"/> 
 
 ## 2021-02-05: Connect Board system to App system
 
 ## 2021-02-05: Field test final product
+We finally tested our final product outside. Video links are provided in our repo. 
