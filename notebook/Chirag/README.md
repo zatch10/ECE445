@@ -79,20 +79,52 @@ heating process would burn any impurities on the heating coil which would releas
 the [MQunifiedSensor library](https://www.arduino.cc/reference/en/libraries/mqunifiedsensor/) to verify the readings in parts per million (ppm).
 Additionally, I was able to read the SGP30 using the [Wire library](https://www.arduino.cc/en/reference/wire) to read data over I2C.
 
-## 2021-02-05: Boot test the ESP32 chip on PCB
-After Vatsin had soldered the ESP32 using the reflow oven, I worked on trying to boot the 
+## 2022-04-18: Boot test the ESP32 chip on PCB
+After Vatsin had soldered the ESP32 using the reflow oven, I worked on trying to load the ESP32 with a test program. To set the ESP32 to boot mode
+I had to first set the boot pin to low. To do so, I essentially connected our boot circuit together. This circuit drives the boot pin to ground.
+I then connected the board to my laptop using a UART programmer and a micro usb cable. An image of the
+programmer I used is shown below:
+
+<img src="https://media.digikey.com/photos/Sparkfun%20Elec%20%20Photos/MFG_BOB-13830.jpg" width="200"/>
+
+I had already tested the program on the devolopment board so I knew it would work. However, I quickly realized that ESP32 was not booting. I tested 
+every single pin on the ESP32 and the boot circuit using the multimeter and all the connections seemed fine. Nevertheless, upon referring to the 
+datasheet I found out that EN pin on the ESP32 needs to be set high. Upon referring back to our PCB design I found a single floating wire that I had
+forgotten to connect as shown below:
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Open%20wire.PNG" width="400"/>
 
-## 2021-02-05: Test sensors on PCB over Bluetooth
+We quickly soldered the EN pin to high and the ESP32 started working!
+
+## 2022-04-20: Test sensors on PCB over Bluetooth
+As the ESP32 was able to load programs, it was time to test the sensors that were soldered into the board. I combined the arduino code that I written to collect sensor data with the bluetooth code I had written. Using the following setup I then tested our board
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Lab%20testing%20the%20board%20and%20sensors.jpg" width="400"/>
 
-## 2021-02-05: Design Casing and start 3D print
+The following readings were read on my bluetooth debugger app on the phone
+
+## 2022-04-22: Design Casing and start 3D print
+With the help of a friend who was an expert in designing CAD models, I created the following case (top and bottom photos shown):
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/top.PNG" width="200" hspace="20"/>      <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/bottom.PNG" width="200"  hspace="20"/> 
 
-## 2021-02-05: Connect Board system to App system
+I then went to the ECE open lab and started a 3D print job. It took almost 7 hours to print during which time I had left to work on something else. Unfortunately, the print job failed mid way as shown below:
 
-## 2021-02-05: Field test final product
-We finally tested our final product outside. Video links are provided in our repo. 
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/failed%20print.jpg" width="400"/>
+
+Nevertheless, I started one more print at night before leaving the ECE building.
+
+## 2022-04-23: Connect Board system to App system
+This time the print task was a resounding success. Now that both the board and app were working by themselves, it was time to test the entire device. 
+The pipeline below highlights how we tested the device:
+
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Complete%20structure.png" width="800"/>
+
+The purple light on the left image indicates that the device is not connected to the app. Once connected, the purple light changes to blue as the 
+ESP32 is able to communicate with the app. Finally, all three gas concentrations are successfully recieved by the app as shown in the image on the 
+right.
+
+## 2022-05-24: Field test final product
+We finally tested our final product outside. We tested it with a lighter to detect propane and then we walked around campus to test the mapping capability.
+We had test with the lighter multiple times to figure out the threshold we should use for detecting propane since the sensor was very noise and would
+randomly return very high concentrations. Video links are provided in our repository. 
