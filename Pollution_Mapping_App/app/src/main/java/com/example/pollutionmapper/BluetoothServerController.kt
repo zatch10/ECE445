@@ -117,7 +117,7 @@ class BluetoothServerController(activity: MapsActivity) : Thread() {
                             }
                             Bluetooth_data.sensor_data =
                                 temp.take(3).map { it.toFloat() }.toList()
-//                        Log.d("bluetooth", Bluetooth_data.sensor_data.joinToString(","))
+                        Log.d("bluetooth_data", Bluetooth_data.sensor_data.joinToString(","))
                             activity.findViewById<TextView>(R.id.text_view_id).text =
                                 "CO2: ${Bluetooth_data.sensor_data[0].toString()}, CO: ${Bluetooth_data.sensor_data[1].toString()}, Propane: ${Bluetooth_data.sensor_data[2].toString()}"
                             if (Bluetooth_data.sensor_data[0] > co2_threshold || Bluetooth_data.sensor_data[1] > co_threshold || Bluetooth_data.sensor_data[2] >= propane_threshold){

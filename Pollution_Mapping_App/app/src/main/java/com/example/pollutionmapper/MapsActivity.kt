@@ -74,7 +74,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
         UpdateMap(this).start()
         val textView = findViewById<TextView>(R.id.text_view_id)
         //final TextView helloTextView = (TextView) findViewById(R.id.text_view_id);
-        textView.text = Bluetooth_data.sensor_data.joinToString(",");
+        textView.text = "CO2: xxxx, CO: xxxx, Propane: xxxx"
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as
                 NotificationManager
         notificationChannel = NotificationChannel(channelId, description, NotificationManager.IMPORTANCE_HIGH)
