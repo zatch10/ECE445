@@ -10,7 +10,7 @@ Here is a rough block diagram for all the communications that my application wou
 Laying out all the requirements gave me a better understanding to start designing the application UI. I spent a considerable time on this to make sure that the application is user friendly while also clearly displaying all the important data. 
 
 Here is a preminilary app layout:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/app_layout.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/app_layout.png"/>
 
 <h2>02/28/2022 : Using Google Maps API and Integrating it in the app</h2>
 
@@ -19,10 +19,10 @@ I could then integrate this API key in the manifest file of the application and 
 After displaying the overlay, I could start plotting markers and circles on the map which will be used to indicate contamination zones and a 100-meter radius around the center of the zone. This proved out to be a great proof of concept for being able to create a heat map once we have the user collected data.
 
 Here is a code snippet for plotting markers and circles on google maps:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/google_maps_code.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/google_maps_code.png"/>
 
 Here is a screenshot of the resulting google maps window:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/google_maps_overlay.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/google_maps_overlay.png"/>
 
 
 <h2>03/21/2022 : Extracting User Location</h2>
@@ -31,12 +31,12 @@ It is important for us to show the current user location on the google maps over
 Extracting user location using both of these means proved out to be more difficult than I thought and required a week's worth of research. I went through a lot of GeeksForGeeks forums and TutorialPoint examples to finally get the code working. 
 
 Here is the code responsible for extracting the user location:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/user_location_code.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/user_location_code.png"/>
 
 Since I used an emulator to test out the application, I could set the GPS location for the emulated device. Next, in the code above, I logged the latitude and longitude coordinates extracted from the comparison between GPS and Network values keeping the most accurate one. This way, I could test out if the coordinate values that I set for my emulator matched the ones calculate by my code. 
 
 Here is a screenshot of setting the location for the emulator:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/emulator_location.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/emulator_location.png"/>
 
 <h2>03/28/2022 : Bluetooth Connection</h2>
 
@@ -44,7 +44,7 @@ We decided that the sensor data collected on the microcontroller will be sent ov
 Unfortunately, this took up a lot of time due to the complexity of code and a myriad ways of doing this. I started out by experimenting with the built-in android library for bluetooth connections. I started with setting up a bluetooth adapter through which I could set up a socket using the function listenUsingRfcommWithServiceRecord() that takes in a UUID which can be consistent with the UUID of the microcontroller. In theory, this should allow us to use an input stream on the socket to listen to the continuous data broadcasted by the micro-controller. However, since the nature of broadcasting was not continous, this method did not work for us despite of hours of debugging and testing with a ESP32 devboard.
 
 Here is the code snippet for the process described above:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/bluetooth_code_not_working.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/bluetooth_code_not_working.png"/>
 
 <h2>04/04/2022 : Bluetooth Connection Continuation</h2>
 
@@ -53,10 +53,10 @@ After hours of debugging, I realized that listenUsingRfcommWithServiceRecord() w
 Once I could verify that the code was working, I transferred the bluetooth code to run on a separate thread in the application. This way, we would continuously fetch the data over bluetooth and parse it without affecting the UI tasks running on the main thread.
 
 Here is the code snippet for the working version of Bluetooth code:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/bluetooth_code_working_1.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/bluetooth_code_working_1.png"/>
 
 I could log the received data on the application side and confirm that the pipeline is working:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/bluetooth_log.png" width="200" hspace="20"/>]
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/bluetooth_log.png"/>
 
 <h2>04/11/2022 : AWS Server</h2>
 
@@ -71,18 +71,18 @@ I used the following schema for our NoSQL DynamoDB table where the primary key i
 
 I tested this pipeline from end to end by making a test POST request to the API endpoint using Postman as shown on the left of the figure below. I verified that we get a status of 200 in the response of the POST request and that the entry was successfully made in the DynamoDB table as shown on the right in the figure below: 
 
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/post_request.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/post_request.png"/>
 
 Similarly, to test the GET request pipeline, I made a test GET request to the API endpoint using Postman and verified that the entire DynamoDB table was returned in the response object of the request as shown below:
 
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/get_request.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/get_request.png"/>
 
 <h2>04/18/2022: Incorporating Server Code in the Application</h2>
 
 Last step remaining for the application was to incorporate the http calls to the server in the application code. Since we wanted to periodically send the data and periodically fetch the data from the server, I decided to write this communication code on a separate thread so that main thread operations won't be interfered with. I used the OkHTTP library to make the REST calls to the API endpointsof our server. To parse out the retrived data, I had to use the FasterXML library. Using these two libraries, I wrote our routines to send the user collected data and fetch and parse the server data on the application. On this thread, all I had to do was call the Post routine, clear out the map, call the Get routine and plot out the data returned by the Get routine. 
 
 Here is the code snippet programmatically performing the tasks described above:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/server_code.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/server_code.png"/>
 
 
 <h2>Week of 04/25/2022</h2>
@@ -91,4 +91,4 @@ After the entire app had been written out and modularly tested, the only task le
 We conducted this walk from the ECEB to Green Street through the Bardeen Quad. The figure below shows all the contamination zones we plotted on this walk along with a notification banner indicating that carbon-dioxide is detected since it exceeded our threshold. 
 
 Here is a screenshot of the application after our test walk:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/app_screenshot.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/app_screenshot.png"/>
