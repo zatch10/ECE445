@@ -128,6 +128,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
         val gpsLocationListener: LocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 locationByGps= location
+                Log.d("AndroidLocation", "GPS Latitude : " + locationByGps!!.latitude)
             }
 
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -138,6 +139,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
         val networkLocationListener: LocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 locationByNetwork= location
+                Log.d("AndroidLocation", "Network Latitude : " + locationByNetwork!!.latitude)
             }
 
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
@@ -154,8 +156,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
                 Log.d("AndroidLocation", "hasNetwork")
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0F, networkLocationListener)
             }
-
-
             val lastKnownLocationByGps =
                 locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             lastKnownLocationByGps?.let {
@@ -168,18 +168,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback{
                 locationByNetwork = lastKnownLocationByNetwork
             }
 //            Log.d("AndroidLocation", "locationByNetwork: " + locationByNetwork.toString())
+
             if (locationByGps != null || locationByNetwork != null) {
-                Log.d("AndroidLocation", "entered function")
+//                Log.d("AndroidLocation", "entered function")
                 if (locationByGps != null) {
                     currentLocation = locationByGps
-                    Log.d("AndroidLocation", "GPS Latitude : " + currentLocation!!.latitude)
-                    Log.d("AndroidLocation", "GPS Longitude : " + currentLocation!!.longitude)
+//                    Log.d("AndroidLocation", "GPS Latitude : " + currentLocation!!.latitude)
+//                    Log.d("AndroidLocation", "GPS Longitude : " + currentLocation!!.longitude)
                     this.currentLatitude = currentLocation!!.latitude
                     this.currentLongitude = currentLocation!!.longitude
                 } else {
                     currentLocation = locationByNetwork
-                    Log.d("AndroidLocation", "Network Latitude : " + currentLocation!!.latitude)
-                    Log.d("AndroidLocation", "Network Longitude : " + currentLocation!!.longitude)
+//                    Log.d("AndroidLocation", "Network Latitude : " + currentLocation!!.latitude)
+//                    Log.d("AndroidLocation", "Network Longitude : " + currentLocation!!.longitude)
                     this.currentLatitude = currentLocation!!.latitude
                     this.currentLongitude = currentLocation!!.longitude
                 }

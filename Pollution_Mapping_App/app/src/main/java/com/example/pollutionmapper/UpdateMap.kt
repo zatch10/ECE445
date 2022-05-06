@@ -85,7 +85,7 @@ class UpdateMap(activity: MapsActivity) : Thread(){
         this.activity.runOnUiThread{
             activity.getLocation()
         }
-        val gps = String.format("%.4f", activity.currentLatitude) + "," + String.format("%.4f", activity.currentLongitude)
+        val gps = String.format("%.3f", activity.currentLatitude) + "," + String.format("%.3f", activity.currentLongitude)
         val co2 = Bluetooth_data.sensor_data[0].toString()
         val co = Bluetooth_data.sensor_data[1].toString()
         val propane = Bluetooth_data.sensor_data[2].toString()

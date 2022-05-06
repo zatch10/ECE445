@@ -16,6 +16,7 @@ import kotlin.collections.ArrayList
 val uuid: UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
 val co2_threshold = 500.0f //Actual threshold value has to be 10,000
 val co_threshold = 100.0f //Actual threshold value has to be 200
+val propane_threshold = 500.0f
 var co2_detected = "not detected"
 var co_detected = "not detected"
 var propane_detected = "not detected"
@@ -107,23 +108,30 @@ class BluetoothServerController(activity: MapsActivity) : Thread() {
                         val data = buffer.copyOf(len)
                         val string = String(data)
                         try {
+                            var temp = string.split("+").toMutableList()
+                            if (temp.size >= 3){
+                                if(temp[2] == "inf"){
+                                    Log.d("sensor", "detected infinite value")
+                                    temp[2] = "1.0"
+                                }
+                            }
                             Bluetooth_data.sensor_data =
-                                string.split("+").take(3).map { it.toFloat() }.toList()
+                                temp.take(3).map { it.toFloat() }.toList()
 //                        Log.d("bluetooth", Bluetooth_data.sensor_data.joinToString(","))
                             activity.findViewById<TextView>(R.id.text_view_id).text =
                                 "CO2: ${Bluetooth_data.sensor_data[0].toString()}, CO: ${Bluetooth_data.sensor_data[1].toString()}, Propane: ${Bluetooth_data.sensor_data[2].toString()}"
-                            if (Bluetooth_data.sensor_data[0] > co2_threshold || Bluetooth_data.sensor_data[1] > co_threshold || Bluetooth_data.sensor_data[2] >= 1){
+                            if (Bluetooth_data.sensor_data[0] > co2_threshold || Bluetooth_data.sensor_data[1] > co_threshold || Bluetooth_data.sensor_data[2] >= propane_threshold){
                                 if (Bluetooth_data.sensor_data[0] > co2_threshold){
                                     co2_detected = "detected"
                                 }
                                 if (Bluetooth_data.sensor_data[1] > co_threshold){
                                     co_detected = "detected"
                                 }
-                                if (Bluetooth_data.sensor_data[2] >= 1){
+                                if (Bluetooth_data.sensor_data[2] >= propane_threshold){
                                     propane_detected = "detected"
                                 }
                                 activity.notify_user("CO2: $co2_detected, CO: $co_detected, Propane: $propane_detected" )
-                                UpdateMap(activity).post()
+//                                UpdateMap(activity).post()
                             }
                             co2_detected = "not detected"
                             co_detected = "not detected"
