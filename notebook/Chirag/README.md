@@ -101,7 +101,9 @@ As the ESP32 was able to load programs, it was time to test the sensors that wer
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Lab%20testing%20the%20board%20and%20sensors.jpg" width="400"/>
 
-The following readings were read on my bluetooth debugger app on the phone
+The following readings were read on my bluetooth debugger app:
+
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/gas%20concentration%20on%20phone.jpg" width="150"/>
 
 ## 2022-04-22: Design Casing and start 3D print
 With the help of a friend who was an expert in designing CAD models, I created the following case (top and bottom photos shown):
@@ -118,7 +120,7 @@ Nevertheless, I started one more print at night before leaving the ECE building.
 This time the print task was a resounding success. Now that both the board and app were working by themselves, it was time to test the entire device. 
 The pipeline below highlights how we tested the device:
 
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Complete%20structure.png" width="800"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Picture4.png" width="800"/>
 
 The purple light on the left image indicates that the device is not connected to the app. Once connected, the purple light changes to blue as the 
 ESP32 is able to communicate with the app. Finally, all three gas concentrations are successfully recieved by the app as shown in the image on the 
