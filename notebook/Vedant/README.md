@@ -5,7 +5,7 @@
 After getting our project of Air Pollution Mapping Band approved, I began writing out all the requirements for our application. Our application should be able to connect and communicate with our microcontroller ESP32. There has to be a central server that collects and stores the data collected by the users. Our application should be able to fetch the data from the server. I also decided to show this data visually on a google maps overlay as I thought that this would be the best way to visualize all the critical data we were collecting. Lastly, I decided to use notification banners to alert the user about high gas contamination.
 
 Here is a rough block diagram for all the communications that my application would be responsible for:
-<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/datapath.png" width="200" hspace="20"/>
+<img src="https://github.com/zatch10/ECE445/blob/master/notebook/Vedant/datapath.png"/>
 
 Laying out all the requirements gave me a better understanding to start designing the application UI. I spent a considerable time on this to make sure that the application is user friendly while also clearly displaying all the important data. 
 
