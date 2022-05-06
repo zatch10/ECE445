@@ -55,18 +55,17 @@ simpler low-dropout (LDO) regulators. The updated the power subsystem circuit sc
 We used this schematic for our second PCB order. After arranging the components we were able to get the dimensions of our PCB down to 8.9cm x 5.6cm.
 
 ## 2021-03-29: Work on Arduino Code and Bluetooth
-Now that the ESP 32 devolopment board had finally arrived, I could finally start working on the arduino code and test bluetooth. I first created a datapath to get an
+Now that the ESP32 devolopment board had finally arrived, I could finally start working on the arduino code and test bluetooth. I first created a datapath to get an
 overview of how the sensor subsystem would look. This is shown below:
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Microcontroller%20datapath.png" width="500"/> 
 
-I then researched about how bluetooth works on the esp32. Since the data transfer was supposed to be periodic, I also research on how to use the programming
-interrupt timer inside the esp32. My bluetooth test is shown below:
+I then researched about how bluetooth works on the ESP32. Since the data transfer was supposed to be periodic, I also researched on how to use the programmable
+interrupt timer inside the ESP32. My bluetooth test is shown below:
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Bluetooth%20Test.PNG" width="500"/> 
 
-The test essentially confirms that data can be transferred periodically every 2 minutes. Also, if values were to exceed our thresholds, it was possible to asynchronously
-send a message to phone.
+The test essentially confirms that data can be transferred periodically every 2 minutes. Also, if values were to exceed our thresholds, it was possible to asynchronously send a message to the phone.
 
 ## 2022-04-05: Order new passive parts and test sensors
 Having finalized our new power subsystem circuit schematic, I had to research and order the new regulators and passive components. These parts are summarized in the 
@@ -94,10 +93,11 @@ forgotten to connect as shown below:
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Open%20wire.PNG" width="400"/>
 
-We quickly soldered the EN pin to high and the ESP32 started working!
+Aside from that issue, I also found that we had reversed the RX and TX pins on our UART circuit. Since we were using wires to boot the ESP32 this was easily 
+fixable. Then I soldered the EN pin to high and the ESP32 started working!
 
 ## 2022-04-20: Test sensors on PCB over Bluetooth
-As the ESP32 was able to load programs, it was time to test the sensors that were soldered into the board. I combined the arduino code that I written to collect sensor data with the bluetooth code I had written. Using the following setup I then tested our board
+As the ESP32 was able to load programs, it was time to test the sensors that were soldered into the board. I combined the arduino code that I written to collect sensor data with my bluetooth code. Using the following setup I then tested our board
 
 <img src="https://github.com/zatch10/ECE445/blob/master/notebook/Chirag/Lab%20testing%20the%20board%20and%20sensors.jpg" width="400"/>
 
@@ -126,5 +126,5 @@ right.
 
 ## 2022-05-24: Field test final product
 We finally tested our final product outside. We tested it with a lighter to detect propane and then we walked around campus to test the mapping capability.
-We had test with the lighter multiple times to figure out the threshold we should use for detecting propane since the sensor was very noise and would
-randomly return very high concentrations. Video links are provided in our repository. 
+We had to test with the lighter multiple times to figure out the threshold we should use for detecting propane since the sensor was very noisy and would
+randomly return very high concentrations. Video demos of these tests are provided in our repository.
