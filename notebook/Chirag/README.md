@@ -130,3 +130,14 @@ right.
 We finally tested our final product outside. We tested it with a lighter to detect propane and then we walked around campus to test the mapping capability.
 We had to test with the lighter multiple times to figure out the threshold we should use for detecting propane since the sensor was very noisy and would
 randomly return very high concentrations. Video demos of these tests are provided in our repository.
+
+## References
+* “MQ2 datasheet.” [Online]. Available: https://cdn.sparkfun.com/assets/3/b/0/6/d/MQ-2.pdf. [Accessed: 05-May-2022]
+* “MQ9B datasheet,” [Online]. Available: https://cdn.sparkfun.com/assets/d/f/5/e/2/MQ-9B_Ver1.4__-_Manual.pdf. [Accessed: 05-May-2022] 
+* "SD40 - Sensiron" [Online]. Available: https://sensirion.com/products/catalog/SCD40/. [Accessed: 05-May-2022]
+* “Datasheet SGP30 sensirion gas platform - adafruit industries.” [Online]. Available: https://cdn-learn.adafruit.com/assets/assets/000/050/058/original/Sensirion_Gas_Sensors_SGP30_Datasheet_EN.pdf. [Accessed: 05-May-2022]
+* “UART - Digikey.” [Online]. Available: https://www.digikey.com/en/products/detail/sparkfun-electronics/BOB-13830/6674603. [Accessed: 05-May-2022]
+* “Mqunifiedsensor,” MQUnifiedsensor - Arduino Reference. [Online]. Available: https://www.arduino.cc/reference/en/libraries/mqunifiedsensor/. [Accessed: 04-May-2022]
+* “Wire,” Wire - Arduino Reference. [Online]. Available: https://www.arduino.cc/en/reference/wire. [Accessed: 04-May-2022]
+*  “Datasheet ESP32.” [Online]. Available:  https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf. [Accessed: 05-May-2022]
+
